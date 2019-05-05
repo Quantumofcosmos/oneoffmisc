@@ -1,13 +1,20 @@
-import pygame, sys
+import pygame, sys ,xlsxwriter, errno
+from os import remove
 from PIL import Image
-master='exp11.jpeg'
+from skimage import io
+
+
 basewidth = 900
-img = Image.open(master)
+
+try:
+    img = Image.open(sys.argv[1])
+except:
+    print("Working with default image")
+    img = Image.open('taj.jpeg') 
 wpercent = (basewidth/float(img.size[0]))
 hsize = int((float(img.size[1])*float(wpercent)))
 img = img.resize((basewidth,hsize), Image.ANTIALIAS)
-img.save('cropin.jpg') 
-
+img.save('topyforcrop.jpg')
 pygame.init()
 
 def displayImage(screen, px, topleft, prior):
@@ -64,18 +71,19 @@ def mainLoop(screen, px):
     return ( topleft + bottomright )
 
 def exceler():
-    baswidth = 900
-    img = Image.open(master)
-    wpercent = (baswidth/float(img.size[0]))
-    hsize = int((float(img.size[1])*float(wpercent)))
-    img = img.resize((baswidth,hsize), Image.ANTIALIAS)
-    img.save('cropin.jpg') 
-    img = io.imread('exp1.jpg')
+#    baswidth = 900
+#    img = Image.open(master)
+#    wpercent = (baswidth/float(img.size[0]))
+#    hsize = int((float(img.size[1])*float(wpercent)))
+#    img = img.resize((baswidth,hsize), Image.ANTIALIAS)
+#    img.save('cropin.jpg') 
+    img = io.imread(output_loc)
+    print(img.shape)
     workbook = xlsxwriter.Workbook('hello_world.xlsx')
     worksheet = workbook.add_worksheet()
-    #worksheet.set_column('A:DW', 1.5)
-    #worksheet.set_row(1:129, 10)
-    
+	#worksheet.set_column('A:DW', 1.5)
+	#worksheet.set_row(1:129, 10)
+
     for row in list(range(0,img.shape[0])):
     #    worksheet.set_row(row, 1.5)
         for col in list(range(0,img.shape[1])):
@@ -84,19 +92,26 @@ def exceler():
             cell_format = workbook.add_format()
             cell_format.set_bg_color(hexx)
             worksheet.write(row,col, ' ',cell_format)
-    #       break
-    #    break 21 15 15 18 14 13
+	#       break
+	#    break 21 15 15 18 14 13
 
     for row in list(range(0,img.shape[0])):
         worksheet.set_row(row, 25)
 
-    for col in list(range(0,img.shape[1])):
-        worksheet.set_column('A:DW', 4)
+    colszrange='A:'+xlsxwriter.utility.xl_col_to_name(img.shape[1])
+    worksheet.set_column(colszrange, 4)
 
     workbook.close()
 
+def silentremove(filename):
+    try:
+        remove(filename)
+    except OSError as e: # this would be "except OSError, e:" before Python 2.6
+        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+            raise
+
 if __name__ == "__main__":
-    input_loc = 'cropin.jpg'
+    input_loc = 'topyforcrop.jpg'
     output_loc = 'cropout.jpg'
     screen, px = setup(input_loc)
     left, upper, right, lower = mainLoop(screen, px)
@@ -110,4 +125,9 @@ if __name__ == "__main__":
     im = im.crop(( left, upper, right, lower))
     pygame.display.quit()
     im.save(output_loc)
+    print("Done processing loading into excel file")
     exceler()
+    print("cleaning up behind process")
+    silentremove('cropout.jpg')
+    silentremove('topyforcrop.jpg')
+    print("Done") 
