@@ -21,5 +21,9 @@ statuss <- read_html("udemy.html") %>% html_nodes(.,".curriculum-item--curriculu
 
 course <- data.frame(title,durmin,dursec,statuss)
 
-course %>% filter(statuss==TRUE) %>% select(durmin) %>% sum() %>% minutes() + 
-  + course %>% filter(statuss==TRUE) %>% select(dursec) %>% sum() %>% seconds_to_period()
+howmuch <- function(a){
+((course %>% filter(statuss==a) %>% select(durmin) %>% mutate(durmin=durmin*60) %>% sum()) +(course %>% filter(statuss==a) %>% select(dursec) %>% sum())) %>%
+  seconds_to_period()
+}
+howmuch(TRUE)
+howmuch(FALSE)
