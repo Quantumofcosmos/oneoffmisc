@@ -1,0 +1,43 @@
+<head>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script> 
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.sound.min.js"></script> 
+<script language="javascript" type="text/javascript">
+	let mic, fft, cs, freaq;
+let something = 0;
+
+function setup() {
+  createCanvas(710, 400);
+  noFill();
+
+  mic = new p5.AudioIn();
+  mic.start();
+  fft = new p5.FFT();
+  fft.setInput(mic);
+}
+
+function draw() {
+  background(200);
+  let enerz = 0;
+
+  let spectrum = fft.analyze();
+
+  for (i = 0; i < 1000; i++) {
+if (enerz < fft.getEnergy(i)){
+enerz = fft.getEnergy(i)
+freaq = i
+} }
+console.log(enerz)
+console.log(freaq)
+
+
+
+  beginShape();
+  for (i = 0; i < 1000; i++) {
+    vertex(i, map(spectrum[i], 0, 255, height, 0));
+  }
+  endShape();
+}
+
+</script>
+</head>
